@@ -1,47 +1,37 @@
-import React, { useContext, useState } from "react";
-import { TodoContext } from "../Contexts/TodoContext";
-import { useDispatch } from "react-redux";
-import { addData } from "../redux/todoSlice";
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addData } from "../redux/apiCalls";
 
 const TodoForm = () => {
-  const [input, setInput] = useState("");
-
+  const state = useSelector((state) => state.todo);
   const dispatch = useDispatch();
 
-  const onTodoSubmit = (e) => {
-    e.preventDefault();
-    dispatch(
-      addData({
-        "title": input,
-        "completed": false,
-      })
-    );
-    setInput("")
-  };
-
-  console.log(input)
-
-  // const { input, setInput, handleAddTodo } = useContext(TodoContext);
-  const [addingTodo, setAddingTodo] = useState(false);
+  const [input, setInput] = useState("");
+  const [emptyError, setEmptyError] = useState(false);
 
   const onInputChange = (event) => {
     setInput(event.target.value);
   };
 
-  // const onTodoSubmit = async (event) => {
-  //   event.preventDefault();
-  //   if (input.trim() !== "") {
-  //     setAddingTodo(true);
-  //     await handleAddTodo();
-  //     setAddingTodo(false);
-  //     setInput("");
-  //   } else {
-  //     alert("Entered value is empty!!!");
-  //   }
-  // };
+  const onTodoSubmit = (e) => {
+    e.preventDefault();
+    if (input.trim() !== "") {
+      setEmptyError(false);
+      dispatch(
+        addData({
+          title: input,
+          completed: false,
+        })
+      );
+      setInput("");
+    } else {
+      setEmptyError(true);
+    }
+  };
 
   return (
     <form onSubmit={onTodoSubmit} className="text-center">
+
       {/* <!-- Button trigger modal --> */}
       <button
         type="button"
@@ -49,26 +39,31 @@ const TodoForm = () => {
         data-bs-toggle="modal"
         data-bs-target="#exampleModal"
       >
-        Add New Task
+        Add New Task 📝
       </button>
+
       {/* <!-- Modal --> */}
       <div
         className="modal fade"
         id="exampleModal"
-        tabindex="-1"
+        tabIndex="-1"
         aria-labelledby="exampleModalLabel"
         aria-hidden="true"
       >
-        <div className="modal-dialog">
+        <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-body">
               <div className="col-auto">
+                <label className="pb-2">Add New Task &nbsp;📋</label>
                 <input
                   type="text"
                   value={input}
                   className="form-control"
                   onChange={onInputChange}
                 />
+                {emptyError && (
+                  <p className="text-danger pt-2">*Input field is Empty!</p>
+                )}
               </div>
             </div>
             <div className="modal-footer">
@@ -80,8 +75,11 @@ const TodoForm = () => {
                 Close
               </button>
               <button type="submit" className="btn btn-primary">
-                {addingTodo ? (
-                  <div class="spinner-border text-light" role="status"></div>
+                {state.fetchingData ? (
+                  <div
+                    className="spinner-border spinner-border-sm text-light"
+                    role="status"
+                  ></div>
                 ) : (
                   "Add Task"
                 )}

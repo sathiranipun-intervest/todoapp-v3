@@ -1,3 +1,18 @@
+
+.todo-list-wrapper{
+  width: 100%;
+}
+
+.task-line {
+  display: flex;
+  align-items: center;
+  width: 100vw;
+  border-color: antiquewhite;
+  padding: 5px 20px;
+  border-style: solid;
+  border-width: 1px;
+}
+
 .complete {
   background-color: rgb(140, 250, 167) !important;
   text-decoration: line-through;

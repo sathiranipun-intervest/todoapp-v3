@@ -1,68 +1,51 @@
-import React, { useContext, useEffect, useState } from "react";
-import { TodoContext } from "../Contexts/TodoContext";
+import React from "react";
 import "./TodoList.css";
 
 import { useSelector, useDispatch } from "react-redux";
-import { requestData } from "../redux/todoSlice";
+import { updateData, removeData } from "../redux/apiCalls";
 
 const TodoList = () => {
   const state = useSelector((state) => state.todo);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(requestData());
-  }, []);
-
-  const { todos, handleComplete, handleDelete } = useContext(TodoContext);
-  const [deletingTodo, setDeletingTodo] = useState(null);
-
-  const handleDeleteWithLoading = async (todo) => {
-    setDeletingTodo(todo._uuid);
-    await handleDelete(todo);
-    setDeletingTodo(null);
-  };
-
-
-
   return (
     <div className="mt-2">
-      {state.isLoading ? (
-        <p>Loading...</p>
-      ) : (
-        state.todoList.map((todo, index) => (
-          <div className="input-group mb-2 w-75" key={todo.id}>
-            <div className="input-group-text ">
-              <input
-                type="checkbox"
-                className={`form-check-input mt-0 p-2 me-3 ${
-                  todo.completed ? "complete" : "incomplete"
-                }`}
-                onChange={() => handleComplete(todo)}
-                checked={todo.completed}
-              />
-              <input
-                type="text"
-                className={`form-control ${
-                  todo.completed ? "complete" : "incomplete"
-                }`}
-                value={todo.title}
-                disabled
-              />
-            </div>
+      {state.todoList.map((todo, index) => (
+        <div className="input-group todo-list-wrapper mb-2" key={todo._uuid}>
+          <div className="input-group-text2 task-line">
+            <input
+              type="checkbox"
+              className={`form-check-input mt-0 p-2 me-3 ${
+                todo.completed ? "complete" : "incomplete"
+              }`}
+              onChange={() => {
+                dispatch(
+                  updateData({
+                    ...todo,
+                    completed: !todo.completed,
+                  })
+                );
+              }}
+              checked={todo.completed}
+            />
+            <input
+              type="text"
+              className={`form-control ${
+                todo.completed ? "complete" : "incomplete"
+              }`}
+              value={todo.title}
+              disabled
+            />
             <button
               type="button"
-              className="btn btn-danger"
-              onClick={() => handleDeleteWithLoading(todo)}
+              className="btn btn-danger ms-2"
+              onClick={() => dispatch(removeData(todo._uuid))}
             >
-              {deletingTodo === todo._uuid ? (
-                <div class="spinner-border" role="status"></div>
-              ) : (
-                "Delete"
-              )}
+              Delete
             </button>
           </div>
-        ))
-      )}
+        </div>
+      ))}
     </div>
   );
 };
